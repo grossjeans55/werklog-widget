@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026년 3월 업무일지 — D.LAB 동탄아카데미</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --border: #E5E3DC;
+    --text-primary: #1A1916;
+    --text-secondary: #6B6960;
+    --text-tertiary: #A8A69E;
+    --accent: #2C5F8A;
+    --accent-light: #E8F0F8;
+    --target-line: #D94F3D;
+    --cat-blue:   #378ADD;
+    --cat-green:  #639922;
+    --cat-yellow: #C9930E;
+    --cat-orange: #D85A30;
+    --cat-red:    #C83232;
+    --cat-purple: #7F77DD;
+    --cat-gray:   #888780;
+    --font-mono: 'DM Mono', monospace;
+    --font-sans: 'Noto Sans KR', sans-serif;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .header-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 300;
+  }
+  .header-badge {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
+  }
+
+  /* ── Main layout ── */
+  .main {
+    padding: 24px 28px;
+    max-width: 900px;
+  }
+
+  /* ── Section label ── */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* ── Metric cards ── */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .metric-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+    font-weight: 300;
+  }
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 5px;
+  }
+  .metric-sub.ok  { color: #3B6D11; }
+  .metric-sub.warn { color: #854F0B; }
+
+  /* ── Charts grid ── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+  }
+
+  /* ── Week bars ── */
+  .week-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 9px;
+  }
+  .week-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    width: 34px;
+    flex-shrink: 0;
+  }
+  .bar-track {
+    flex: 1;
+    height: 18px;
+    background: var(--bg);
+    border-radius: 3px;
+    position: relative;
+    overflow: visible;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    min-width: 0;
+    transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .bar-target-line {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 1.5px;
+    background: var(--target-line);
+    border-radius: 1px;
+  }
+  .bar-val {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .bar-badge {
+    font-size: 9px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 10px;
+    width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .bar-badge.ok   { background: #EAF3DE; color: #3B6D11; }
+  .bar-badge.warn { background: #FAEEDA; color: #854F0B; }
+  .bar-badge.none { background: transparent; }
+
+  .target-legend {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+  }
+  .target-legend-line {
+    width: 12px;
+    height: 2px;
+    background: var(--target-line);
+    border-radius: 1px;
+  }
+
+  /* ── Donut ── */
+  .donut-wrap {
+    position: relative;
+    width: 100%;
+    height: 150px;
+  }
+  .donut-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Input section ── */
+  .input-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+  }
+  .input-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .input-row label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex: 1;
+    font-weight: 300;
+  }
+  .input-row input {
+    width: 48px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-align: right;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    outline: none;
+    padding: 0;
+  }
+  .input-unit {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+  }
+
+  /* ── Buttons ── */
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .btn {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 400;
+    padding: 7px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text-primary);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn:hover { background: var(--bg); }
+  .btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .btn.primary:hover { background: #1f4a6e; }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 14px 0;
+  }
+
+  /* ── Saved indicator ── */
+  .saved-note {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+    min-height: 14px;
+  }
+  .saved-note.show { color: #3B6D11; }
+
+  /* ── Tab strip ── */
+  .tab-strip {
+    display: flex;
+    gap: 2px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3px;
+    width: fit-content;
+    margin-bottom: 20px;
+  }
+  .tab {
+    font-size: 12px;
+    font-weight: 400;
+    padding: 5px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-tertiary);
+    transition: all 0.15s;
+    font-family: var(--font-sans);
+  }
+  .tab.active {
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* ── Empty state ── */
+  .empty-hint {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 300;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-title">D.LAB 동탄아카데미</span>
+  <span class="header-sub">2026년 3월 비대면 업무 현황</span>
+  <span class="header-badge">목표 12h/주</span>
+</div>
+
+<div class="main">
+
+  <div class="tab-strip">
+    <button class="tab active" onclick="switchTab('overview')">개요</button>
+    <button class="tab" onclick="switchTab('input')">데이터 입력</button>
+  </div>
+
+  <!-- Overview tab -->
+  <div id="tab-overview">
+    <div class="section-label">월간 요약</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">3월 비대면 총 시간</div>
+        <div class="metric-value" id="m-total">—</div>
+        <div class="metric-sub" id="m-total-sub">입력 후 갱신</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">주 평균 비대면 시간</div>
+        <div class="metric-value" id="m-avg">—</div>
+        <div class="metric-sub" id="m-avg-sub">목표 12h</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">목표 달성 주차</div>
+        <div class="metric-value" id="m-hit">—</div>
+        <div class="metric-sub" id="m-hit-sub">/ 4주</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="card">
+        <div class="section-label">주별 비대면 업무 시간</div>
+        <div id="week-bars-container"></div>
+        <div class="target-legend">
+          <div class="target-legend-line"></div>
+          목표 12시간 기준선
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-label">카테고리 비율</div>
+        <div class="donut-wrap">
+          <canvas id="donutCanvas"></canvas>
+        </div>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input tab -->
+  <div id="tab-input" style="display:none;">
+    <div class="input-section">
+      <div class="section-label">주별 비대면 업무 시간 (h)</div>
+      <div class="input-grid" id="week-input-grid"></div>
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">카테고리별 비대면 시간 — 월 합계 (h)</div>
+      <div class="input-grid" id="cat-input-grid"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" onclick="saveAndApply()">저장 및 적용</button>
+      <button class="btn" onclick="resetAll()">초기화</button>
+    </div>
+    <div class="saved-note" id="saved-note"></div>
+  </div>
+
+</div>
+
+<script>
+const TARGET = 12;
+const WEEKS = ['1주차', '2주차', '3주차', '4주차'];
+const CATS = [
+  { key: 'lesson',     label: '수업 진행',    color: '#378ADD' },
+  { key: 'curriculum', label: '커리큘럼 개발', color: '#639922' },
+  { key: 'admin',      label: '행정·운영',    color: '#C9930E' },
+  { key: 'parent',     label: '학부모 소통',   color: '#D85A30' },
+  { key: 'external',   label: '외부 업무',    color: '#C83232' },
+  { key: 'self',       label: '자기개발',     color: '#7F77DD' },
+  { key: 'etc',        label: '기타',         color: '#888780' },
+];
+
+const STORAGE_KEY = 'dlab_march_2026';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return {
+    weeks: [0, 0, 0, 0],
+    cats: { lesson:0, curriculum:0, admin:0, parent:0, external:0, self:0, etc:0 }
+  };
+}
+
+function saveData(d) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+
+let data = loadData();
+let donutChart = null;
+
+function switchTab(t) {
+  document.getElementById('tab-overview').style.display = t === 'overview' ? 'block' : 'none';
+  document.getElementById('tab-input').style.display    = t === 'input'    ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((b, i) => {
+    b.classList.toggle('active', (t === 'overview' && i === 0) || (t === 'input' && i === 1));
+  });
+  if (t === 'input') buildInputs();
+}
+
+function buildInputs() {
+  const wg = document.getElementById('week-input-grid');
+  wg.innerHTML = WEEKS.map((w, i) => `
+    <div class="input-row">
+      <label>${w}</label>
+      <input type="number" id="w${i}" min="0" max="60" step="0.5" value="${data.weeks[i]}">
+      <span class="input-unit">h</span>
+    </div>`).join('');
+
+  const cg = document.getElementById('cat-input-grid');
+  cg.innerHTML = CATS.map(c => `
+    <div class="input-row">
+      <div class="input-color" style="background:${c.color}"></div>
+      <label>${c.label}</label>
+      <input type="number" id="c_${c.key}" min="0" max="200" step="0.5" value="${data.cats[c.key]}">
+      <span class="input-unit">h</span>
+    </div>`).join('');
+}
+
+function saveAndApply() {
+  WEEKS.forEach((_, i) => {
+    data.weeks[i] = parseFloat(document.getElementById('w' + i).value) || 0;
+  });
+  CATS.forEach(c => {
+    data.cats[c.key] = parseFloat(document.getElementById('c_' + c.key).value) || 0;
+  });
+  saveData(data);
+  renderOverview();
+  const note = document.getElementById('saved-note');
+  note.textContent = '저장됨 — ' + new Date().toLocaleTimeString('ko-KR');
+  note.classList.add('show');
+  setTimeout(() => note.classList.remove('show'), 2500);
+  switchTab('overview');
+}
+
+function resetAll() {
+  if (!confirm('모든 데이터를 초기화할까요?')) return;
+  data = { weeks: [0,0,0,0], cats: { lesson:0, curriculum:0, admin:0, parent:0, external:0, self:0, etc:0 } };
+  saveData(data);
+  buildInputs();
+  renderOverview();
+}
+
+function renderOverview() {
+  renderMetrics();
+  renderWeekBars();
+  renderDonut();
+}
+
+function renderMetrics() {
+  const total = data.weeks.reduce((a, b) => a + b, 0);
+  const filledWeeks = data.weeks.filter(v => v > 0).length || 1;
+  const avg = total / filledWeeks;
+  const hit = data.weeks.filter(v => v >= TARGET).length;
+  const hasData = total > 0;
+
+  const mTotal = document.getElementById('m-total');
+  const mTotalSub = document.getElementById('m-total-sub');
+  mTotal.textContent = hasData ? total + 'h' : '—';
+  const targetTotal = TARGET * 4;
+  mTotalSub.textContent = hasData
+    ? `목표 ${targetTotal}h 대비 ${Math.round(total / targetTotal * 100)}%`
+    : '데이터 없음';
+  mTotalSub.className = 'metric-sub' + (hasData && total >= targetTotal ? ' ok' : '');
+
+  const mAvg = document.getElementById('m-avg');
+  const mAvgSub = document.getElementById('m-avg-sub');
+  mAvg.textContent = hasData ? avg.toFixed(1) + 'h' : '—';
+  mAvgSub.textContent = hasData
+    ? (avg >= TARGET ? '목표 달성' : `${(TARGET - avg).toFixed(1)}h 부족`)
+    : '목표 12h';
+  mAvgSub.className = 'metric-sub' + (hasData && avg >= TARGET ? ' ok' : hasData ? ' warn' : '');
+
+  document.getElementById('m-hit').textContent = hasData ? hit : '—';
+  document.getElementById('m-hit-sub').textContent = '/ 4주';
+}
+
+function renderWeekBars() {
+  const max = Math.max(...data.weeks, TARGET, 1);
+  const container = document.getElementById('week-bars-container');
+  container.innerHTML = WEEKS.map((w, i) => {
+    const v = data.weeks[i];
+    const pct = Math.min((v / max) * 100, 100);
+    const tPct = Math.min((TARGET / max) * 100, 100);
+    const over = v >= TARGET;
+    const color = over ? '#639922' : '#378ADD';
+    let badgeHtml = '';
+    if (v > 0) {
+      const cls = over ? 'ok' : 'warn';
+      const txt = over ? '달성' : `−${(TARGET - v).toFixed(1)}h`;
+      badgeHtml = `<span class="bar-badge ${cls}">${txt}</span>`;
+    } else {
+      badgeHtml = `<span class="bar-badge none"></span>`;
+    }
+    return `
+    <div class="week-bar-row">
+      <span class="week-label">${w}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%;background:${color};opacity:0.9;"></div>
+        <div class="bar-target-line" style="left:${tPct}%;"></div>
+      </div>
+      <span class="bar-val">${v > 0 ? v + 'h' : '—'}</span>
+      ${badgeHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderDonut() {
+  const vals = CATS.map(c => data.cats[c.key]);
+  const sum = vals.reduce((a, b) => a + b, 0);
+  const legendEl = document.getElementById('donut-legend');
+
+  if (!donutChart) {
+    const ctx = document.getElementById('donutCanvas').getContext('2d');
+    donutChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: CATS.map(c => c.label),
+        datasets: [{
+          data: CATS.map(() => 1),
+          backgroundColor: CATS.map(() => '#E5E3DC'),
+          borderWidth: 0,
+          hoverOffset: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}h (${sum > 0 ? Math.round(ctx.raw / sum * 100) : 0}%)` }
+          }
+        }
+      }
+    });
+  }
+
+  if (sum === 0) {
+    donutChart.data.datasets[0].data = CATS.map(() => 1);
+    donutChart.data.datasets[0].backgroundColor = CATS.map(() => '#E5E3DC');
+    donutChart.update();
+    legendEl.innerHTML = '<span class="empty-hint">카테고리 데이터 없음</span>';
+    return;
+  }
+
+  donutChart.data.datasets[0].data = vals;
+  donutChart.data.datasets[0].backgroundColor = CATS.map(c => c.color);
+  donutChart.update();
+
+  legendEl.innerHTML = CATS
+    .map((c, i) => vals[i] > 0
+      ? `<span class="legend-item"><span class="legend-dot" style="background:${c.color}"></span>${c.label} ${Math.round(vals[i] / sum * 100)}%</span>`
+      : '')
+    .filter(Boolean).join('');
+}
+
+renderOverview();
+</script>
+</body>
+</html>
